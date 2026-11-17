@@ -1,0 +1,29 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>ÇiftSatır ağ yakalama testi</title>
+    <style>
+      body { margin: 0; background: #000; }
+      video { width: 640px; height: 360px; background: #111; }
+    </style>
+  </head>
+  <body>
+    <video id="v" playsinline preload="auto"></video>
+    <script>
+      // Mimics a player like JW Player on a streaming site: the subtitles are
+      // fetched by XHR and painted by the player. There is deliberately no
+      // <track> element and no textTrack, so the network layer is the only way
+      // the extension can see the cue text.
+      setTimeout(() => {
+        const xhr = new XMLHttpRequest();
+        xhr.open('GET', 'sample.vtt');
+        xhr.onload = () => {
+          window.__captureDone = true;
+          window.__captureText = String(xhr.responseText || '').slice(0, 40);
+        };
+        xhr.send();
+      }, 600);
+    </script>
+  </body>
+</html>

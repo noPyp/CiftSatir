@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>HLS metadata track + XHR subtitle</title>
+  <style>
+    body { margin: 0; background: #111; }
+    #player { position: relative; width: 640px; height: 360px; margin: 80px 40px; }
+    video { width: 640px; height: 360px; background: #000; }
+    .jw-text-track-display { position: absolute; left: 0; right: 0; bottom: 40px; text-align: center; color: #fff; font-size: 18px; }
+  </style>
+</head>
+<body>
+  <div id="player">
+    <video id="v" playsinline muted preload="auto" controls>
+      <source src="/vendor/flower.mp4" type="video/mp4" />
+    </video>
+    <div class="jw-text-track-display"></div>
+  </div>
+  <script>
+    // Reproduces the reported bug: an HLS player exposes its discontinuity/ID3
+    // feed as a kind="metadata" TextTrack whose cue text is a stringified
+    // object. It is timed text but it is not dialogue, and it used to be painted
+    // over the film as a subtitle. The real subtitle arrives over XHR and is
+    // painted by the player itself, with no <track> and no textTracks.
+    const video = document.getElementById('v');
+    const box = document.querySelector('.jw-text-track-display');
+    let cues = [];
+
+    const metadata = video.addTextTrack('metadata', 'HLS tags', 'zxx');
+    metadata.mode = 'hidden';
+    if (typeof VTTCue === 'function') {
+      metadata.addCue(new VTTCue(0, 100, JSON.stringify({
+        metadataType: 'discontinuity',
+        tag: 'DISCONTINUITY',
+        discontinuitySequence: 5,
+        cueType: 'discontinuity',
+        PTS: 123456
+      })));
+      metadata.addCue(new VTTCue(0, 100, 'tag=SCTE35 seq=2 pts=999 payload=0xFC30'));
+    }
+
+    function parseSrt(text) {
+      return text.replace(/\r/g, '').split(/\n{2,}/).map((block) => {
+        const lines = block.split('\n');
+        const timing = lines.find((line) => line.includes('-->'));
+        if (!timing) {
+          return null;
+        }
+        const [a, b] = timing.split('-->').map((value) => value.trim().split(' ')[0]);
+        const toSeconds = (value) => {
+          const [h, m, rest] = value.replace(',', '.').split(':');
+          return Number(h) * 3600 + Number(m) * 60 + Number(rest);
+        };
+        return {
+          start: toSeconds(a),
+          end: toSeconds(b),
+          text: lines.slice(lines.indexOf(timing) + 1).join(' ').replace(/<[^>]+>/g, '').trim()
+        };
+      }).filter(Boolean);
+    }
+
+    const xhr = new XMLHttpRequest();
+    xhr.open('GET', '/edge/sub?lang=en&fmt=srt-octet');
+    xhr.onload = () => {
+      window.__subtitleFetched = true;
+      cues = parseSrt(xhr.responseText);
+      draw();
+    };
+    xhr.send();
+
+    function draw() {
+      const time = Number(video.currentTime) || 0;
+      const cue = cues.find((row) => time >= row.start && time < row.end);
+      box.textContent = cue ? cue.text : '';
+    }
+
+    video.addEventListener('timeupdate', draw);
+    video.addEventListener('seeked', draw);
+  </script>
+</body>
+</html>

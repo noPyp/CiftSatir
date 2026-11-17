@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>ArtPlayer player</title>
+  <style>
+    body { margin: 0; background: #111; }
+    .artplayer-app { width: 640px; height: 360px; margin: 80px 40px; }
+  </style>
+</head>
+<body>
+  <div class="artplayer-app"></div>
+  <script src="/vendor/artplayer.js"></script>
+  <script>
+    window.player = new Artplayer({
+      container: '.artplayer-app',
+      url: '/vendor/flower.mp4',
+      volume: 0,
+      autoplay: false,
+      setting: true,
+      playbackRate: true,
+      subtitle: {
+        url: '/sample.vtt',
+        type: 'vtt',
+        style: { color: '#fff', fontSize: '20px' },
+        escape: false
+      }
+    });
+  </script>
+</body>
+</html>

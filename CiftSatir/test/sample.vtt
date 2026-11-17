@@ -1,0 +1,28 @@
+WEBVTT
+
+NOTE This note block must be skipped by the parser.
+
+STYLE
+::cue {
+  color: white;
+}
+
+1
+00:00:00.500 --> 00:00:04.000 align:start position:10%
+Hello, how are you today?
+
+2
+00:00:04.200 --> 00:00:08.500
+I'm learning English by watching movies.
+
+3
+00:00:08.700 --> 00:00:13.000
+I want to understand every word they say.
+
+4
+00:00:13.200 --> 00:00:18.000
+Don't worry, it gets easier with practice.
+
+5
+00:00:18.200 --> 00:00:23.500
+<v Speaker>Speaker tags and <00:00:20.000>inline timestamps must go.

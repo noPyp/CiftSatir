@@ -1,0 +1,27 @@
+1
+00:00:00,500 --> 00:00:04,000
+Merhaba, bugün nasılsın?
+
+2
+00:00:04,200 --> 00:00:08,500
+Film izleyerek İngilizce öğreniyorum.
+
+3
+00:00:08,700 --> 00:00:13,000
+Söyledikleri her kelimeyi anlamak istiyorum.
+
+4
+00:00:13,200 --> 00:00:18,000
+Endişelenme, pratikle kolaylaşıyor.
+
+5
+00:00:18,200 --> 00:00:23,500
+Bu satırda temizlenmesi gereken italik etiketler var.
+
+6
+00:00:23,700 --> 00:00:29,000
+"Buzu kırmak" gibi deyimleri öğrenmeye değer.
+
+7
+00:00:29,200 --> 00:00:35,000
+Üç yıldır çalışıyor ve şimdi kendi işini yönetiyor.

@@ -1,0 +1,229 @@
+<!DOCTYPE html>
+<html lang="tr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ÇiftSatır</title>
+    <link rel="stylesheet" href="popup.css" />
+  </head>
+  <body>
+    <div class="popup">
+      <header class="head">
+        <div class="brand">
+          <img class="brand-mark" src="logo.svg" alt="ÇiftSatır logosu" width="36" height="36" />
+          <div class="brand-text">
+            <h1>ÇiftSatır</h1>
+            <p>Çift altyazı ile İngilizce öğren</p>
+          </div>
+        </div>
+        <label class="master" title="Altyazı katmanını aç veya kapat">
+          <input id="masterToggle" type="checkbox" />
+          <span class="switch" aria-hidden="true"><span class="knob"></span></span>
+          <span class="sr-only">Altyazıyı aç veya kapat</span>
+        </label>
+      </header>
+
+      <div class="state-row">
+        <span id="stateBadge" class="badge is-off">Kapalı</span>
+        <span id="supportBadge" class="badge is-muted">Kontrol ediliyor…</span>
+      </div>
+
+      <p id="pageMessage" class="message">Bu sekme kontrol ediliyor…</p>
+      <div id="recoveryRow" class="recovery is-hidden">
+        <button id="retryButton" class="btn btn-small" type="button">Yeniden dene</button>
+        <button id="reloadButton" class="btn btn-small btn-ghost" type="button">Sekmeyi yenile</button>
+      </div>
+
+      <p id="diagLine" class="diag-line is-hidden"></p>
+
+      <section id="subtitleCard" class="card">
+        <div class="card-head">
+          <h2>Altyazı</h2>
+          <span class="card-note">Bu sekme</span>
+        </div>
+
+        <div class="row">
+          <span class="row-label">İngilizce</span>
+          <label class="mini">
+            <input id="englishToggle" type="checkbox" />
+            <span class="mini-track" aria-hidden="true"><span class="mini-knob"></span></span>
+            <span class="sr-only">İngilizce altyazıyı aç veya kapat</span>
+          </label>
+        </div>
+
+        <div class="row">
+          <span class="row-label">Türkçe</span>
+          <label class="mini">
+            <input id="turkishToggle" type="checkbox" />
+            <span class="mini-track" aria-hidden="true"><span class="mini-knob"></span></span>
+            <span class="sr-only">Türkçe altyazıyı aç veya kapat</span>
+          </label>
+        </div>
+
+        <div class="row row-column">
+          <div class="row-top">
+            <span class="row-label">Yazı boyutu</span>
+            <span id="sizeValue" class="row-value">100%</span>
+          </div>
+          <input id="sizeRange" class="range" type="range" min="70" max="180" step="5" value="100" aria-label="Altyazı yazı boyutu" />
+        </div>
+
+        <div class="row row-column">
+          <div class="row-top">
+            <span class="row-label">Konum</span>
+          </div>
+          <div id="positionGroup" class="segmented" role="group" aria-label="Altyazı konumu">
+            <button type="button" data-position="bottom">Alt</button>
+            <button type="button" data-position="middle">Orta</button>
+            <button type="button" data-position="top">Üst</button>
+          </div>
+        </div>
+
+        <p id="subtitleHint" class="hint is-hidden"></p>
+      </section>
+
+      <section id="styleCard" class="card">
+        <div class="card-head">
+          <h2>Görünüm</h2>
+          <button id="styleReset" class="link-btn" type="button">Varsayılana dön</button>
+        </div>
+
+        <div id="stylePreview" class="preview" aria-hidden="true">
+          <span class="preview-line preview-en">I <span class="preview-word">really</span> need a coffee.</span>
+          <span class="preview-line preview-tr">Gerçekten bir kahveye ihtiyacım var.</span>
+        </div>
+
+        <div class="row row-column">
+          <div class="row-top">
+            <span class="row-label">Hazır temalar</span>
+          </div>
+          <div id="presetGroup" class="presets" role="group" aria-label="Hazır altyazı temaları">
+            <button type="button" data-preset="classic">Klasik</button>
+            <button type="button" data-preset="cinema">Sinema</button>
+            <button type="button" data-preset="yellow">Sarı</button>
+            <button type="button" data-preset="contrast">Kontrast</button>
+          </div>
+        </div>
+
+        <div class="row">
+          <span class="row-label">İngilizce rengi</span>
+          <input id="enColor" class="swatch" type="color" aria-label="İngilizce satır rengi" />
+        </div>
+
+        <div class="row">
+          <span class="row-label">Türkçe rengi</span>
+          <input id="trColor" class="swatch" type="color" aria-label="Türkçe satır rengi" />
+        </div>
+
+        <div class="row">
+          <span class="row-label">Kelime vurgusu</span>
+          <input id="hoverColor" class="swatch" type="color" aria-label="Üzerine gelinen kelimenin vurgu rengi" />
+        </div>
+
+        <div class="row">
+          <span class="row-label">Siyah arka plan</span>
+          <label class="mini">
+            <input id="bgToggle" type="checkbox" />
+            <span class="mini-track" aria-hidden="true"><span class="mini-knob"></span></span>
+            <span class="sr-only">Altyazının arkasındaki siyah barı aç veya kapat</span>
+          </label>
+        </div>
+
+        <div id="bgOpacityRow" class="row row-column">
+          <div class="row-top">
+            <span class="row-label">Arka plan koyuluğu</span>
+            <span id="bgOpacityValue" class="row-value">58%</span>
+          </div>
+          <input id="bgOpacity" class="range" type="range" min="10" max="100" step="5" value="58" aria-label="Arka plan koyuluğu" />
+        </div>
+
+        <div class="row">
+          <span class="row-label">Yazı gölgesi</span>
+          <label class="mini">
+            <input id="outlineToggle" type="checkbox" />
+            <span class="mini-track" aria-hidden="true"><span class="mini-knob"></span></span>
+            <span class="sr-only">Yazı gölgesini aç veya kapat</span>
+          </label>
+        </div>
+      </section>
+
+      <section class="card">
+        <div class="card-head">
+          <h2>Öğrenme</h2>
+          <span id="libCount" class="count-pill">0 kelime</span>
+        </div>
+        <button id="openSite" class="btn btn-primary" type="button">İngilizce Öğrenme Sitesini Aç</button>
+        <button id="openLibrary" class="btn" type="button">Kelime Kütüphanem</button>
+        <p id="libraryHint" class="hint">Kütüphanen henüz boş. Altyazıda bir kelimeye tıkla, paneldeki ☆ ile kaydet; kelimeler burada birikir.</p>
+      </section>
+
+      <section class="card card-quiet">
+        <button id="helpToggle" class="link-btn" type="button" aria-expanded="false">
+          Bu sayfada çalışmıyor mu?
+          <span id="helpArrow" class="arrow" aria-hidden="true">▾</span>
+        </button>
+        <div id="helpBody" class="help is-hidden">
+          <ol>
+            <li>Videoyu başlatın; altyazı oynatıcıdan gelir.</li>
+            <li>Altyazı yoksa <strong>.srt</strong> / <strong>.vtt</strong> dosyanızı videonun üzerine sürükleyin.</li>
+            <li>Eklentiyi yeni yüklediyseniz sekmeyi bir kez yenileyin.</li>
+          </ol>
+          <button id="diagnoseButton" class="btn btn-small" type="button">Bu sayfayı incele</button>
+          <pre id="diagnoseOut" class="diagnose is-hidden"></pre>
+        </div>
+      </section>
+
+      <details id="advanced" class="advanced">
+        <summary>Gelişmiş ayarlar</summary>
+        <div class="advanced-body">
+          <label class="field-label" for="siteUrlInput">Öğrenme sitesi adresi</label>
+          <div class="inline">
+            <input id="siteUrlInput" class="input" type="url" spellcheck="false" autocomplete="off" />
+            <button id="saveSiteUrl" class="btn btn-small" type="button">Kaydet</button>
+          </div>
+          <p class="hint">
+            Site yerel sunucuda çalışırken adres <code>http://127.0.0.1:5173/</code> olur.
+            Sunucu kapalıysa aşağıdaki dosya açılır.
+          </p>
+
+          <label class="field-label" for="siteFileInput">Yedek: derlenmiş site dosyası</label>
+          <div class="inline">
+            <input id="siteFileInput" class="input" type="url" spellcheck="false" autocomplete="off" />
+            <button id="saveSiteFile" class="btn btn-small" type="button">Kaydet</button>
+          </div>
+          <p class="hint">
+            Yerel sunucu çalışmıyorsa site bu dosyadan açılır. Kütüphane eşitlemesi için
+            Opera'da eklentiye <strong>“Dosya URL'lerine erişime izin ver”</strong> verilmeli.
+          </p>
+
+          <label class="field-label" for="apiKeyInput">
+            Claude API anahtarı <span class="muted">(isteğe bağlı)</span>
+          </label>
+          <div class="inline">
+            <input id="apiKeyInput" class="input" type="password" placeholder="sk-ant-..." autocomplete="off" spellcheck="false" />
+            <button id="saveKeyButton" class="btn btn-small" type="button">Kaydet</button>
+          </div>
+          <div class="key-row">
+            <span id="keyStatus" class="key-status">yok</span>
+            <button id="clearKeyButton" class="link-btn danger" type="button" disabled>Anahtarı sil</button>
+          </div>
+          <p class="hint">
+            Gerekli değil: çeviri, anlamlar ve 5 örnek cümle ücretsiz kaynaklardan gelir.
+            Anahtar yalnızca cümle üretiminde yedek olarak kullanılır.
+          </p>
+
+          <div class="key-row key-row-spread">
+            <button id="clearCache" class="btn btn-small btn-ghost" type="button">Önbelleği temizle</button>
+            <span id="swStatus" class="sw-status">Arka plan servisi kontrol ediliyor…</span>
+          </div>
+        </div>
+      </details>
+
+      <div id="toast" class="toast" role="status" aria-live="polite" hidden></div>
+    </div>
+
+    <script src="../shared/constants.js"></script>
+    <script src="../shared/messaging.js"></script>
+    <script src="popup.js"></script>
+  </body>
+</html>

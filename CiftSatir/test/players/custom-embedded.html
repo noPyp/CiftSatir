@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Custom player with embedded subtitles (DOM only)</title>
+  <style>
+    body { margin: 0; background: #111; }
+    #player { position: relative; width: 640px; height: 360px; margin: 80px 40px; }
+    video { width: 640px; height: 360px; background: #000; }
+    .jw-text-track-display { position: absolute; left: 0; right: 0; bottom: 40px; text-align: center; color: #fff; font-size: 18px; }
+  </style>
+</head>
+<body>
+  <div id="player">
+    <video id="v" playsinline muted preload="auto" controls>
+      <source src="/vendor/flower.mp4" type="video/mp4" />
+    </video>
+    <div class="jw-text-track-display"></div>
+  </div>
+  <script>
+    // Some players receive their lines from an API/WebSocket and paint them into
+    // their own container. Nothing is fetched here, so the network layer sees
+    // nothing; only reading the rendered caption can work.
+    const video = document.getElementById('v');
+    const box = document.querySelector('.jw-text-track-display');
+    const cues = [
+      { start: 0.5, end: 4.0, text: 'Hello, how are you today?' },
+      { start: 4.2, end: 8.5, text: "I'm learning English by watching movies." },
+      { start: 8.7, end: 13.0, text: 'I want to understand every word they say.' }
+    ];
+
+    function draw() {
+      const time = Number(video.currentTime) || 0;
+      const cue = cues.find((row) => time >= row.start && time < row.end);
+      box.textContent = cue ? cue.text : '';
+    }
+
+    video.addEventListener('timeupdate', draw);
+    video.addEventListener('seeked', draw);
+    draw();
+  </script>
+</body>
+</html>

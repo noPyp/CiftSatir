@@ -1,0 +1,50 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ÇiftSatır Test Page</title>
+    <style>
+      body {
+        margin: 0;
+        font-family: Arial, sans-serif;
+        background: #0f172a;
+        color: #f8fafc;
+        display: grid;
+        place-items: center;
+        min-height: 100vh;
+      }
+
+      .frame {
+        width: min(900px, 92vw);
+        padding: 20px;
+        border-radius: 16px;
+        background: rgba(15, 23, 42, 0.9);
+        box-shadow: 0 20px 50px rgba(0, 0, 0, 0.4);
+      }
+
+      video {
+        width: 100%;
+        height: auto;
+        border-radius: 12px;
+        background: #000;
+      }
+
+      .info {
+        margin-top: 14px;
+        color: #cbd5e1;
+        font-size: 14px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="frame">
+      <video id="demoVideo" controls playsinline preload="auto">
+        <source src="https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.mp4" type="video/mp4" />
+      </video>
+      <div class="info">
+        Test page for ÇiftSatır. This page is for timing validation only; the sample subtitle text is not synced to the audio.
+      </div>
+    </div>
+  </body>
+</html>

@@ -1,0 +1,27 @@
+1
+00:00:00,500 --> 00:00:04,000
+Hello, how are you today?
+
+2
+00:00:04,200 --> 00:00:08,500
+I'm learning English by watching movies.
+
+3
+00:00:08,700 --> 00:00:13,000
+I want to understand every word they say.
+
+4
+00:00:13,200 --> 00:00:18,000
+Don't worry, it gets easier with practice.
+
+5
+00:00:18,200 --> 00:00:23,500
+<i>This line has italic tags</i> that must be stripped.
+
+6
+00:00:23,700 --> 00:00:29,000
+Well-known phrases like "break the ice" are worth learning.
+
+7
+00:00:29,200 --> 00:00:35,000
+She's been studying for three years, and now she runs her own business.

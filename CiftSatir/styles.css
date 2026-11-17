@@ -1,0 +1,453 @@
+/* ÇiftSatır overlay. Everything is namespaced under .dualsub-layer so no host
+   page styles are touched. The layer itself stays click-through, so clicks
+   meant for the player controls pass straight through; only the pieces that
+   are genuinely interactive opt back in with pointer-events: auto. */
+
+.dualsub-layer {
+  position: fixed;
+  left: 0;
+  bottom: 0;
+  transform: translateX(-50%);
+  width: min(85%, 720px);
+  pointer-events: none;
+  z-index: 2147483646;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  text-align: center;
+  line-height: 1.35;
+  font-family: Arial, "Segoe UI", sans-serif;
+}
+
+.dualsub-layer,
+.dualsub-layer * {
+  pointer-events: none;
+}
+
+.dualsub-layer.is-hidden {
+  display: none;
+}
+
+/* Invisible shield around the two lines: catches clicks that miss a word so
+   they never reach the player's seek bar or play/pause area underneath. */
+.dualsub-layer .dualsub-box {
+  pointer-events: auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  max-width: 100%;
+  padding: 8px 10px 2px;
+  box-sizing: border-box;
+  background: transparent;
+  cursor: default;
+}
+
+/* Drag handle: the small bar under the subtitle. */
+.dualsub-layer .dualsub-handle {
+  pointer-events: auto;
+  position: relative;
+  width: 44px;
+  height: 14px;
+  cursor: grab;
+  touch-action: none;
+  flex: none;
+}
+
+.dualsub-layer .dualsub-handle::before {
+  content: "";
+  position: absolute;
+  left: 6px;
+  right: 6px;
+  top: 5px;
+  height: 4px;
+  border-radius: 2px;
+  background: rgba(255, 255, 255, 0.35);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.6);
+  transition: background-color 0.12s ease, left 0.12s ease, right 0.12s ease;
+}
+
+.dualsub-layer .dualsub-box:hover .dualsub-handle::before {
+  background: rgba(255, 255, 255, 0.6);
+}
+
+.dualsub-layer .dualsub-handle:hover::before,
+.dualsub-layer.is-dragging .dualsub-handle::before {
+  left: 2px;
+  right: 2px;
+  background: var(--dualsub-hover-strong, rgba(56, 189, 248, 0.9));
+}
+
+.dualsub-layer.is-dragging,
+.dualsub-layer.is-dragging * {
+  cursor: grabbing !important;
+  user-select: none;
+}
+
+.dualsub-line {
+  display: inline-block;
+  max-width: 100%;
+  padding: 4px 12px;
+  border-radius: 8px;
+  background: var(--dualsub-bg, rgba(0, 0, 0, 0.58));
+  color: #ffffff;
+  font-size: var(--dualsub-font-size, 16px);
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  text-shadow: var(--dualsub-shadow, 0 2px 4px rgba(0, 0, 0, 0.8));
+  box-sizing: border-box;
+  line-height: 1.2;
+  white-space: normal;
+  word-break: break-word;
+}
+
+/* The popup's EN/TR switches add this class to a single line. Without this
+   rule the class had no effect at all, so turning a language off looked broken
+   even though the state and the popup checkbox both changed. */
+.dualsub-line.is-hidden {
+  display: none;
+}
+
+/* English: the prompt line - bold and full size. */
+.dualsub-line.en {
+  color: var(--dualsub-en-color, #f8fbff);
+  font-weight: 700;
+}
+
+/* Turkish: the translation - smaller, quieter, never interactive. */
+.dualsub-line.tr {
+  color: var(--dualsub-tr-color, #dff7e6);
+  font-size: calc(var(--dualsub-font-size, 16px) * 0.78);
+  font-weight: 500;
+  opacity: 0.95;
+}
+
+/* Clickable words opt back into hit-testing. */
+.dualsub-word {
+  pointer-events: auto;
+  cursor: pointer;
+  border-radius: 3px;
+  padding: 0 1px;
+  transition: background-color 0.12s ease, color 0.12s ease;
+}
+
+.dualsub-word:hover,
+.dualsub-word:focus-visible {
+  background: var(--dualsub-hover, rgba(56, 189, 248, 0.35));
+  outline: none;
+}
+
+.dualsub-word:active {
+  background: var(--dualsub-hover-strong, rgba(56, 189, 248, 0.6));
+}
+
+/* ---- Meaning panel: sits directly above the subtitle block ---- */
+
+.dualsub-panel {
+  position: fixed;
+  z-index: 2147483647;
+  transform: translateX(-50%);
+  width: min(92%, 460px);
+  box-sizing: border-box;
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: rgba(17, 24, 39, 0.97);
+  border: 1px solid rgba(148, 163, 184, 0.35);
+  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.55);
+  color: #f9fafb;
+  font-family: Arial, "Segoe UI", sans-serif;
+  font-size: 14px;
+  line-height: 1.4;
+  text-align: left;
+  overflow-y: auto;
+  pointer-events: auto;
+}
+
+.dualsub-panel.is-hidden {
+  display: none;
+}
+
+.dualsub-panel-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 10px;
+  margin-bottom: 6px;
+}
+
+.dualsub-panel-title {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  min-width: 0;
+  flex-wrap: wrap;
+}
+
+.dualsub-panel-word {
+  font-size: 17px;
+  font-weight: 700;
+  color: #7dd3fc;
+  word-break: break-word;
+}
+
+.dualsub-panel-actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex: none;
+}
+
+.dualsub-panel-btn {
+  pointer-events: auto;
+  cursor: pointer;
+  border: 1px solid rgba(148, 163, 184, 0.4);
+  background: rgba(255, 255, 255, 0.08);
+  color: #e2e8f0;
+  border-radius: 6px;
+  padding: 3px 8px;
+  font-size: 12px;
+  font-family: inherit;
+  line-height: 1.4;
+  white-space: nowrap;
+}
+
+.dualsub-panel-btn:hover {
+  background: rgba(255, 255, 255, 0.18);
+}
+
+.dualsub-star-btn {
+  font-size: 15px;
+  padding: 2px 7px;
+  color: #fbbf24;
+}
+
+.dualsub-star-btn.is-starred {
+  background: rgba(251, 191, 36, 0.22);
+  border-color: rgba(251, 191, 36, 0.7);
+}
+
+.dualsub-panel-meaning {
+  font-size: 15px;
+  color: #ffffff;
+  margin-bottom: 4px;
+}
+
+.dualsub-panel-meaning.is-loading {
+  color: #94a3b8;
+  font-style: italic;
+}
+
+.dualsub-panel-meaning.is-empty {
+  color: #fca5a5;
+}
+
+.dualsub-panel-ipa {
+  color: #94a3b8;
+  font-size: 12px;
+  font-weight: 400;
+}
+
+.dualsub-panel-context {
+  margin-top: 8px;
+  padding: 7px 9px;
+  border-left: 3px solid rgba(125, 211, 252, 0.55);
+  background: rgba(15, 23, 42, 0.7);
+  border-radius: 0 6px 6px 0;
+}
+
+.dualsub-panel-context.is-hidden {
+  display: none;
+}
+
+.dualsub-panel-context-label {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: #94a3b8;
+  margin-bottom: 3px;
+}
+
+.dualsub-panel-context-en {
+  color: #e2e8f0;
+  font-size: 13px;
+  line-height: 1.35;
+}
+
+.dualsub-panel-context-tr {
+  color: #a7f3d0;
+  font-size: 12px;
+  line-height: 1.35;
+  margin-top: 2px;
+}
+
+.dualsub-panel-sentences-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+  color: #94a3b8;
+}
+
+.dualsub-panel-foot {
+  margin-top: 10px;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.dualsub-play-btn {
+  background: rgba(34, 197, 94, 0.22);
+  border-color: rgba(34, 197, 94, 0.6);
+  color: #dcfce7;
+  font-weight: 700;
+}
+
+.dualsub-play-btn:hover {
+  background: rgba(34, 197, 94, 0.38);
+}
+
+.dualsub-us-btn,
+.dualsub-uk-btn {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  padding: 3px 6px;
+}
+
+.dualsub-close-btn {
+  font-size: 16px;
+  line-height: 1;
+  padding: 1px 8px 4px;
+}
+
+.dualsub-retry-btn {
+  margin-top: 8px;
+}
+
+.dualsub-sentence-loading,
+.dualsub-sentence-error {
+  font-size: 12px;
+  line-height: 1.45;
+  color: #94a3b8;
+  padding: 6px 0;
+}
+
+.dualsub-sentence-error {
+  color: #fca5a5;
+}
+
+.dualsub-sentence-note {
+  font-size: 11px;
+  color: #fbbf24;
+  line-height: 1.4;
+  padding: 4px 0 0 2px;
+}
+
+.dualsub-panel-sentences {
+  margin-top: 10px;
+  padding-top: 8px;
+  border-top: 1px solid rgba(148, 163, 184, 0.25);
+}
+
+.dualsub-panel-sentences.is-hidden {
+  display: none;
+}
+
+.dualsub-sentence-list {
+  margin: 0;
+  padding-left: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.dualsub-sentence {
+  position: relative;
+}
+
+.dualsub-sentence-en {
+  color: #f8fbff;
+  font-weight: 600;
+}
+
+.dualsub-sentence-tr {
+  color: #a7f3d0;
+  font-size: 12px;
+}
+
+.dualsub-sentence-level {
+  position: absolute;
+  top: 0;
+  right: 0;
+  font-size: 10px;
+  color: #94a3b8;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.dualsub-sentence-empty {
+  color: #94a3b8;
+  font-size: 12px;
+}
+
+/* ---- Drop zone for manually loaded subtitle files ---- */
+
+.dualsub-dropzone {
+  position: fixed;
+  z-index: 2147483647;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  box-sizing: border-box;
+  min-width: 260px;
+  padding: 18px 22px;
+  border-radius: 12px;
+  border: 2px dashed rgba(125, 211, 252, 0.8);
+  background: rgba(17, 24, 39, 0.95);
+  color: #e0f2fe;
+  font-family: Arial, "Segoe UI", sans-serif;
+  font-size: 14px;
+  text-align: center;
+  pointer-events: none;
+}
+
+.dualsub-dropzone.is-hidden {
+  display: none;
+}
+
+/* ---- YouTube: hide the player's own caption box once its text is captured ---- */
+
+/* The extension reads the rendered captions and repeats them in its own two
+   lines. Hiding the player's box with opacity keeps the DOM updating, so the
+   capture does not stop when the box is no longer visible. */
+html.dualsub-youtube-dom .ytp-caption-window-container {
+  opacity: 0 !important;
+}
+
+/* ---- Netflix: same idea. Netflix keeps painting its own subtitle under our
+   two lines; once a line has been captured its layer is made invisible (not
+   removed), so the text keeps updating and the capture keeps working. ---- */
+html.dualsub-netflix-dom .player-timedtext,
+html.dualsub-netflix-dom [data-uia="player-subtitle"] {
+  opacity: 0 !important;
+}
+
+/* ---- Known player caption layers ------------------------------------------
+   While our own two lines are visible, the player's caption container is
+   hidden so the sentence is not painted twice. These class names belong to the
+   players that render their own captions while keeping the text out of
+   `<video>.textTracks`: Video.js, Plyr, DPlayer, ArtPlayer and JW Player.
+   `visibility` is used rather than `display` so the player's layout and its own
+   caption bookkeeping keep working; the extension reads the track/cue list, not
+   the painted node. */
+html.dualsub-own-captions .vjs-text-track-display,
+html.dualsub-own-captions .plyr__captions,
+html.dualsub-own-captions .dplayer-subtitle,
+html.dualsub-own-captions .art-subtitle,
+html.dualsub-own-captions .jw-text-track-display,
+html.dualsub-own-captions .jw-text-track-container {
+  visibility: hidden !important;
+}

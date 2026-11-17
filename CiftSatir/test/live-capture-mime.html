@@ -1,0 +1,28 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>ÇiftSatır içerik türü yakalama testi</title>
+    <style>
+      body { margin: 0; background: #000; }
+      video { width: 640px; height: 360px; background: #111; }
+    </style>
+  </head>
+  <body>
+    <video id="v" playsinline preload="auto"></video>
+    <script>
+      // Many players hide the format behind an id-only URL. The server answers
+      // this one with `content-type: text/vtt`, so the URL extension alone would
+      // not be enough to recognise it.
+      setTimeout(() => {
+        const xhr = new XMLHttpRequest();
+        xhr.open('GET', 'subtitle/42?lang=en');
+        xhr.onload = () => {
+          window.__captureDone = true;
+          window.__captureText = String(xhr.responseText || '').slice(0, 40);
+        };
+        xhr.send();
+      }, 600);
+    </script>
+  </body>
+</html>

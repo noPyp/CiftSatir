@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>Canvas-rendered subtitles (unsupported by design)</title>
+  <style>
+    body { margin: 0; background: #111; }
+    #player { position: relative; width: 640px; height: 360px; margin: 80px 40px; }
+    video { width: 640px; height: 360px; background: #000; }
+    canvas { position: absolute; left: 0; top: 0; pointer-events: none; }
+  </style>
+</head>
+<body>
+  <div id="player">
+    <video id="v" playsinline muted preload="auto" controls>
+      <source src="/vendor/flower.mp4" type="video/mp4" />
+    </video>
+    <canvas id="c" width="640" height="360"></canvas>
+  </div>
+  <script>
+    // Some players burn the subtitle into a canvas / bitmap. There is no text
+    // node no track and no subtitle request: the words exist only as pixels and
+    // cannot be read without OCR. The extension must report "unsupported"
+    // instead of guessing or showing a placeholder.
+    const video = document.getElementById('v');
+    const canvas = document.getElementById('c');
+    const ctx = canvas.getContext('2d');
+    const cues = [
+      { start: 0.5, end: 4.0, text: 'Hello, how are you today?' },
+      { start: 4.2, end: 5.0, text: "I'm learning English by watching movies." }
+    ];
+
+    function draw() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      const time = Number(video.currentTime) || 0;
+      const cue = cues.find((row) => time >= row.start && time < row.end);
+      if (!cue) {
+        return;
+      }
+      ctx.font = '20px Arial';
+      ctx.fillStyle = '#fff';
+      ctx.textAlign = 'center';
+      ctx.fillText(cue.text, canvas.width / 2, canvas.height - 50);
+    }
+
+    video.addEventListener('timeupdate', draw);
+    video.addEventListener('seeked', draw);
+    draw();
+  </script>
+</body>
+</html>

@@ -1,0 +1,201 @@
+﻿<!DOCTYPE html>
+<html lang="tr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ÇiftSatır Test Sayfası</title>
+    <style>
+      body {
+        margin: 0;
+        font-family: Arial, "Segoe UI", sans-serif;
+        background: #0f172a;
+        color: #f8fafc;
+        padding: 24px;
+      }
+
+      h1 {
+        font-size: 20px;
+        margin: 0 0 6px;
+      }
+
+      .lead {
+        color: #94a3b8;
+        font-size: 13px;
+        margin: 0 0 20px;
+        line-height: 1.5;
+      }
+
+      .grid {
+        display: grid;
+        gap: 20px;
+        grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+      }
+
+      .card {
+        padding: 16px;
+        border-radius: 14px;
+        background: rgba(30, 41, 59, 0.8);
+        border: 1px solid rgba(148, 163, 184, 0.2);
+      }
+
+      .card h2 {
+        font-size: 14px;
+        margin: 0 0 4px;
+        color: #7dd3fc;
+      }
+
+      .card p {
+        font-size: 12px;
+        color: #94a3b8;
+        margin: 0 0 10px;
+        line-height: 1.5;
+      }
+
+      video {
+        width: 100%;
+        height: auto;
+        border-radius: 10px;
+        background: #000;
+      }
+
+      button {
+        cursor: pointer;
+        border: 1px solid rgba(148, 163, 184, 0.4);
+        background: rgba(255, 255, 255, 0.08);
+        color: #e2e8f0;
+        border-radius: 7px;
+        padding: 7px 12px;
+        font-size: 13px;
+        font-family: inherit;
+        margin-right: 6px;
+        margin-top: 10px;
+      }
+
+      button:hover {
+        background: rgba(255, 255, 255, 0.18);
+      }
+
+      pre {
+        background: rgba(2, 6, 23, 0.8);
+        border-radius: 8px;
+        padding: 10px;
+        font-size: 11px;
+        color: #a5f3fc;
+        overflow-x: auto;
+        margin: 10px 0 0;
+        max-height: 180px;
+        white-space: pre-wrap;
+      }
+
+      /*
+        The <track> below is deliberately served from a real same-origin file so
+        the generic-track adaptor has something to read. The VTT file is the
+        same content used by the manual-drop test.
+      */
+    </style>
+  </head>
+  <body>
+    <h1>ÇiftSatır Test Sayfası</h1>
+    <p class="lead">
+      Eklentiyi Opera GX'te <code>opera://extensions</code> → Geliştirici modu →
+      "Paketlenmemiş öğe yükle" ile yükleyin. Aşağıdaki iki video, altyazı
+      yakalamanın iki farklı yolunu test eder. Konsolu açıp (F12) hatalara bakın.
+    </p>
+
+    <div class="grid">
+      <div class="card">
+        <h2>1. &lt;track&gt; yolu</h2>
+        <p>
+          Video, kendi <code>&lt;track&gt;</code> elementiyle bir VTT dosyası
+          taşıyor. <code>generic-track</code> adaptörü bunu okumalı: çift satır
+          görünmeli ve İngilizce kelimeler tıklanabilir olmalı.
+        </p>
+        <video id="trackVideo" controls playsinline preload="auto" crossorigin="anonymous">
+          <source
+            src="https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.mp4"
+            type="video/mp4"
+          />
+          <track
+            id="enTrack"
+            kind="subtitles"
+            srclang="en"
+            label="English"
+            src="sample.vtt"
+            default
+          />
+        </video>
+        <button id="toggleTrackMode" type="button">Track modunu değiştir</button>
+      </div>
+
+      <div class="card">
+        <h2>2. Elle dosya yükleme yolu</h2>
+        <p>
+          Altyazı dosyası olmayan bir video. <code>sample.en.srt</code> ve
+          <code>sample.tr.srt</code> dosyalarını sayfanın üzerine sürükleyip
+          bırakın — çift satır bu yoldan da görünmeli.
+        </p>
+        <video id="dropVideo" controls playsinline preload="auto"
+          src="https://interactive-examples.mdn.mozilla.net/media/cc0-videos/flower.mp4"></video>
+        <button id="simulateDrop" type="button">Ağ yakalamayı test et</button>
+      </div>
+    </div>
+
+    <div class="card" style="margin-top: 20px">
+      <h2>MAIN world ağ yakalama testi</h2>
+      <p>
+        Aşağıdaki düğme, sayfanın kendi <code>fetch</code>'i ile bir VTT dosyası
+        çeker. <code>network-capture.js</code> (MAIN world) bunu yakalayıp
+        <code>postMessage</code> ile içerik betiğine iletmeli. Sonuç aşağıda
+        görünür ve konsolda <code>dualsub-capture</code> mesajı düşer.
+      </p>
+      <button id="fetchVtt" type="button">fetch() ile VTT çek</button>
+      <pre id="log">hazır…</pre>
+    </div>
+
+    <script>
+      // Plain page script. It must NOT know anything about the extension - the
+      // point is to exercise the same network path a real player would use.
+      const log = document.getElementById('log');
+
+      function appendLog(line) {
+        log.textContent += '\n' + line;
+      }
+
+      document.getElementById('fetchVtt').addEventListener('click', async () => {
+        try {
+          const response = await fetch('sample.vtt');
+          const text = await response.text();
+          appendLog('fetch tamam: ' + text.length + ' karakter, WEBVTT içeriyor: ' + text.includes('WEBVTT'));
+        } catch (error) {
+          appendLog('fetch hatası: ' + error.message);
+        }
+      });
+
+      document.getElementById('simulateDrop').addEventListener('click', () => {
+        appendLog('İpucu: .srt dosyalarını sayfaya sürükleyip bırakın.');
+      });
+
+      // Confirms the bridge is actually wired up on this page.
+      window.addEventListener('message', (event) => {
+        if (event.source !== window) {
+          return;
+        }
+        const data = event.data;
+        if (data && data.source === 'dualsub-capture') {
+          appendLog('YAKALANDI: ' + data.url + ' (' + data.body.length + ' karakter)');
+        }
+      });
+
+      const trackVideo = document.getElementById('trackVideo');
+      document.getElementById('toggleTrackMode').addEventListener('click', () => {
+        const track = trackVideo.textTracks[0];
+        if (!track) {
+          appendLog('Track bulunamadı.');
+          return;
+        }
+        track.mode = track.mode === 'showing' ? 'hidden' : 'showing';
+        appendLog('Track modu: ' + track.mode + ' · cue sayısı: ' + (track.cues ? track.cues.length : 0));
+      });
+    </script>
+  </body>
+</html>

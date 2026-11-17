@@ -1,0 +1,91 @@
+{
+  "manifest_version": 3,
+  "name": "ÇiftSatır",
+  "short_name": "ÇiftSatır",
+  "version": "1.6.0",
+  "description": "İngilizce öğrenmek için çift altyazı: üstte İngilizce, altta Türkçe. Kelimeye tıkla, anlamını ve 5 örnek cümleyi gör.",
+  "permissions": [
+    "activeTab",
+    "scripting",
+    "storage"
+  ],
+  "host_permissions": [
+    "https://translate.googleapis.com/*",
+    "https://api.mymemory.translated.net/*",
+    "https://text.pollinations.ai/*",
+    "https://tatoeba.org/*",
+    "https://api.dictionaryapi.dev/*",
+    "https://*.wiktionary.org/*",
+    "https://api.anthropic.com/*",
+    "http://127.0.0.1/*",
+    "http://localhost/*"
+  ],
+  "background": {
+    "service_worker": "background/service-worker.js"
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "<all_urls>"
+      ],
+      "js": [
+        "shared/constants.js",
+        "shared/stemmer.js",
+        "shared/cache.js",
+        "shared/library.js",
+        "shared/lang-detect.js",
+        "shared/sentence-builder.js",
+        "shared/parsers.js",
+        "shared/cue-model.js",
+        "shared/cue-translate.js",
+        "shared/messaging.js",
+        "content/site-bridge.js",
+        "content/words.js",
+        "content/panel.js",
+        "content/overlay.js",
+        "adaptors/registry.js",
+        "adaptors/manual-file.js",
+        "adaptors/generic-track.js",
+        "adaptors/embedded-track.js",
+        "adaptors/dom-caption.js",
+        "adaptors/youtube.js",
+        "adaptors/netflix.js",
+        "content/capture-bridge.js",
+        "content/content.js"
+      ],
+      "css": [
+        "styles.css"
+      ],
+      "run_at": "document_idle",
+      "all_frames": true,
+      "match_about_blank": true
+    },
+    {
+      "matches": [
+        "<all_urls>"
+      ],
+      "js": [
+        "adaptors/network-capture.js"
+      ],
+      "run_at": "document_start",
+      "all_frames": true,
+      "world": "MAIN"
+    }
+  ],
+  "icons": {
+    "16": "icons/icon16.png",
+    "32": "icons/icon32.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  },
+  "action": {
+    "default_title": "ÇiftSatır",
+    "default_icon": {
+      "16": "icons/icon16.png",
+      "32": "icons/icon32.png",
+      "48": "icons/icon48.png",
+      "128": "icons/icon128.png"
+    },
+    "default_popup": "ui/popup.html"
+  }
+}

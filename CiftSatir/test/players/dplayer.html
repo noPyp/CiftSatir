@@ -1,0 +1,23 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <title>DPlayer player</title>
+  <style>
+    body { margin: 0; background: #111; }
+    #dplayer { width: 640px; height: 360px; margin: 80px 40px; }
+  </style>
+</head>
+<body>
+  <div id="dplayer"></div>
+  <script src="/vendor/DPlayer.min.js"></script>
+  <script>
+    window.player = new DPlayer({
+      container: document.getElementById('dplayer'),
+      volume: 0,
+      video: { url: '/vendor/flower.mp4', type: 'normal' },
+      subtitle: { url: '/sample.vtt', type: 'webvtt', fontSize: '20px', bottom: '10%' }
+    });
+  </script>
+</body>
+</html>

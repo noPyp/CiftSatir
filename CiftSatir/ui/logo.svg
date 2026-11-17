@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" role="img" aria-label="ÇiftSatır logosu">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#0f172a"/>
+      <stop offset="1" stop-color="#0891b2"/>
+    </linearGradient>
+    <linearGradient id="shine" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#ffffff" stop-opacity=".18"/>
+      <stop offset="1" stop-color="#ffffff" stop-opacity="0"/>
+    </linearGradient>
+  </defs>
+  <rect x="3" y="3" width="122" height="122" rx="29" fill="url(#bg)"/>
+  <rect x="3" y="3" width="122" height="61" rx="29" fill="url(#shine)"/>
+  <rect x="26" y="44" width="76" height="17.5" rx="8.75" fill="#f8fafc"/>
+  <rect x="26" y="71.5" width="47.5" height="17.5" rx="8.75" fill="#67e8f9"/>
+  <rect x="79.5" y="71.5" width="17.5" height="17.5" rx="8.75" fill="#22d3ee"/>
+</svg>

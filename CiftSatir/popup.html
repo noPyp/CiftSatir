@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="tr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ÇiftSatır</title>
+    <style>
+      :root {
+        --bg: #111827;
+        --panel: #1f2937;
+        --panel-alt: #0f172a;
+        --text: #f9fafb;
+        --muted: #cbd5e1;
+        --accent: #38bdf8;
+        --success: #22c55e;
+        --warning: #f59e0b;
+        --danger: #ef4444;
+      }
+
+      * {
+        box-sizing: border-box;
+      }
+
+      body {
+        margin: 0;
+        min-width: 280px;
+        font-family: Arial, sans-serif;
+        background: linear-gradient(180deg, var(--bg), var(--panel));
+        color: var(--text);
+      }
+
+      .popup {
+        padding: 16px;
+      }
+
+      h1 {
+        margin: 0 0 12px;
+        font-size: 28px;
+        letter-spacing: 0.04em;
+      }
+
+      .toggle-btn {
+        width: 100%;
+        border: none;
+        border-radius: 10px;
+        padding: 10px 14px;
+        font-size: 15px;
+        font-weight: 700;
+        cursor: pointer;
+        color: #08111d;
+        background: var(--accent);
+        transition: opacity 0.2s ease;
+      }
+
+      .toggle-btn:hover {
+        opacity: 0.9;
+      }
+
+      .status-list {
+        margin-top: 14px;
+        display: grid;
+        gap: 10px;
+      }
+
+      .status-row {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        background: rgba(255, 255, 255, 0.05);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 8px;
+        padding: 8px 10px;
+      }
+
+      .status-label {
+        color: var(--muted);
+      }
+
+      .status-value {
+        font-weight: 700;
+      }
+
+      .status-value.on {
+        color: var(--success);
+      }
+
+      .status-value.off {
+        color: var(--warning);
+      }
+
+      .message {
+        margin-top: 12px;
+        min-height: 40px;
+        padding: 10px 12px;
+        border-radius: 8px;
+        background: rgba(15, 23, 42, 0.9);
+        color: var(--text);
+        line-height: 1.4;
+        font-size: 13px;
+      }
+
+      .message.error {
+        border: 1px solid rgba(239, 68, 68, 0.7);
+        color: #fecaca;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="popup">
+      <h1>ÇiftSatır</h1>
+      <button id="toggleButton" class="toggle-btn" type="button">Disable subtitles</button>
+
+      <div class="status-list">
+        <div class="status-row">
+          <span class="status-label">English</span>
+          <span id="englishStatus" class="status-value on">On</span>
+        </div>
+        <div class="status-row">
+          <span class="status-label">Turkish</span>
+          <span id="turkishStatus" class="status-value on">On</span>
+        </div>
+      </div>
+
+      <div id="videoStatus" class="message">Checking active tab…</div>
+    </div>
+
+    <script src="popup.js"></script>
+  </body>
+</html>
