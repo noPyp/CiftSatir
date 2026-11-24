@@ -95,10 +95,6 @@
 
   function positionOverlay(overlay, video, forceMeasure, settings) {
     const target = resolveOverlayHost(video);
-    overlay.__dualsubVideo = video;
-    if (settings) {
-      overlay.__dualsubSettings = settings;
-    }
 
     if (overlay.parentElement !== target) {
       target.appendChild(overlay);
@@ -123,18 +119,10 @@
       ? videoRect.height * 0.28
       : position === 'top' ? videoRect.height * 0.55 : 0;
 
-    // A position the user dragged the subtitle to wins over the presets.
-    const custom = validDrag(overlay.__dualsubDrag) ? overlay.__dualsubDrag : null;
-
     const layout = {
       target: target,
-      custom: custom ? custom.fx + ',' + custom.fy : '',
-      left: custom
-        ? videoRect.left + custom.fx * videoRect.width
-        : videoRect.left + videoRect.width / 2,
-      bottom: custom
-        ? global.innerHeight - videoRect.bottom + custom.fy * videoRect.height
-        : Math.max(12, global.innerHeight - videoRect.bottom + controlSpace + lift),
+      left: videoRect.left + videoRect.width / 2,
+      bottom: Math.max(12, global.innerHeight - videoRect.bottom + controlSpace + lift),
       width: Math.min(videoRect.width * 0.9, 720),
       fontSize: fontSize,
       top: videoRect.top,
@@ -173,54 +161,21 @@
       panel.el.style.visibility = 'hidden';
     }
 
-    // Measure the visible subtitle box, not the (wider, invisible) layer: when
-    // the user drags the subtitle sideways the layer may hang off the video
-    // while the text itself still fits.
-    const box = overlay.__dualsubBox || overlay;
-    const measure = () => box.getBoundingClientRect();
-    const tooBig = (rect) => rect.width > videoRect.width - 8 || (custom
-      ? rect.height > videoRect.height - 8
-      : rect.top < videoRect.top + 4 ||
-        rect.left < videoRect.left + 4 ||
-        rect.right > videoRect.right - 4);
-
     let fittedFontSize = fontSize;
-    let overlayRect = measure();
+    let overlayRect = overlay.getBoundingClientRect();
     let iterations = 0;
 
-    while (fittedFontSize > 10 && iterations < 26 && tooBig(overlayRect)) {
+    while (
+      fittedFontSize > 10 &&
+      iterations < 26 &&
+      (overlayRect.top < videoRect.top + 4 ||
+        overlayRect.left < videoRect.left + 4 ||
+        overlayRect.right > videoRect.right - 4)
+    ) {
       fittedFontSize = Math.max(10, fittedFontSize - 1);
       overlay.style.setProperty('--dualsub-font-size', fittedFontSize + 'px');
-      overlayRect = measure();
+      overlayRect = overlay.getBoundingClientRect();
       iterations += 1;
-    }
-
-    if (custom) {
-      // Keep the dragged subtitle fully inside the video.
-      const half = overlayRect.width / 2;
-      const minLeft = videoRect.left + half + 4;
-      const maxLeft = videoRect.right - half - 4;
-      const left = minLeft > maxLeft
-        ? videoRect.left + videoRect.width / 2
-        : Math.min(maxLeft, Math.max(minLeft, layout.left));
-      const minBottom = global.innerHeight - videoRect.bottom + 4;
-      const maxBottom = global.innerHeight - videoRect.top - 4 - overlayRect.height;
-      const bottom = minBottom > maxBottom
-        ? minBottom
-        : Math.min(maxBottom, Math.max(minBottom, layout.bottom));
-
-      if (left !== layout.left || bottom !== layout.bottom) {
-        overlay.style.setProperty('left', left + 'px');
-        overlay.style.setProperty('bottom', bottom + 'px');
-        overlayRect = measure();
-      }
-
-      if (panelWasVisible) {
-        panel.el.style.visibility = '';
-        panel.position(overlayRect);
-      }
-      overlay.__dualsubLayout = layout;
-      return true;
     }
 
     // If the block still does not sit where it belongs, move it instead of
@@ -323,159 +278,6 @@
     lineEl.textContent = text || '';
   }
 
-  // ---- Click shield + drag handle -------------------------------------------
-
-  const BOX_CLASS = 'dualsub-box';
-  const HANDLE_CLASS = 'dualsub-handle';
-  const DRAGGING_CLASS = 'is-dragging';
-  const SWALLOWED_EVENTS = ['click', 'dblclick', 'mousedown', 'mouseup',
-    'pointerdown', 'pointerup', 'touchstart', 'touchend'];
-  // Positions are remembered per site (controls sit in different places on
-  // YouTube, Netflix, ...), as fractions of the video so they survive resizes
-  // and fullscreen.
-  const DRAG_STORAGE_KEY = 'dualsubDragPositions';
-
-  function validDrag(pos) {
-    return Boolean(pos) && Number.isFinite(pos.fx) && Number.isFinite(pos.fy) &&
-      pos.fx >= 0 && pos.fx <= 1 && pos.fy >= 0 && pos.fy <= 1;
-  }
-
-  function storageArea() {
-    try {
-      return global.chrome && global.chrome.storage && global.chrome.storage.local
-        ? global.chrome.storage.local
-        : null;
-    } catch (error) {
-      return null; // extension reloaded: context invalidated
-    }
-  }
-
-  function siteKey() {
-    try {
-      return global.location.hostname || 'local';
-    } catch (error) {
-      return 'local';
-    }
-  }
-
-  function saveDragPosition(pos) {
-    const area = storageArea();
-    if (!area) {
-      return;
-    }
-    try {
-      area.get(DRAG_STORAGE_KEY, (stored) => {
-        const map = Object.assign({}, (stored && stored[DRAG_STORAGE_KEY]) || {});
-        if (validDrag(pos)) {
-          map[siteKey()] = { fx: pos.fx, fy: pos.fy };
-        } else {
-          delete map[siteKey()];
-        }
-        area.set({ [DRAG_STORAGE_KEY]: map });
-      });
-    } catch (error) {
-      // Position is a convenience; never break the subtitles over it.
-    }
-  }
-
-  function loadDragPosition(overlay) {
-    const area = storageArea();
-    if (!area) {
-      return;
-    }
-    try {
-      area.get(DRAG_STORAGE_KEY, (stored) => {
-        const map = (stored && stored[DRAG_STORAGE_KEY]) || {};
-        const pos = map[siteKey()];
-        if (validDrag(pos) && !overlay.__dualsubDrag) {
-          overlay.__dualsubDrag = { fx: pos.fx, fy: pos.fy };
-          reposition(overlay);
-        }
-      });
-    } catch (error) {
-      // ignore
-    }
-  }
-
-  function reposition(overlay) {
-    const video = overlay.__dualsubVideo;
-    if (video && video.isConnected && !overlay.classList.contains(HIDDEN_CLASS)) {
-      positionOverlay(overlay, video, true, overlay.__dualsubSettings);
-    }
-  }
-
-  function attachDrag(overlay, handle) {
-    let drag = null;
-
-    handle.addEventListener('pointerdown', (event) => {
-      if (event.button !== 0) {
-        return;
-      }
-      const video = overlay.__dualsubVideo;
-      const rect = video && getVisibleVideoRect(video);
-      if (!rect) {
-        return;
-      }
-      event.preventDefault();
-      event.stopPropagation();
-      try {
-        handle.setPointerCapture(event.pointerId);
-      } catch (error) {
-        // ignore
-      }
-      const boxRect = overlay.__dualsubBox.getBoundingClientRect();
-      drag = {
-        id: event.pointerId,
-        dx: event.clientX - (boxRect.left + boxRect.width / 2),
-        dy: event.clientY - boxRect.bottom
-      };
-      overlay.classList.add(DRAGGING_CLASS);
-    });
-
-    handle.addEventListener('pointermove', (event) => {
-      if (!drag || event.pointerId !== drag.id) {
-        return;
-      }
-      event.preventDefault();
-      event.stopPropagation();
-      const rect = getVisibleVideoRect(overlay.__dualsubVideo);
-      if (!rect) {
-        return;
-      }
-      const centerX = event.clientX - drag.dx;
-      const bottomY = event.clientY - drag.dy;
-      overlay.__dualsubDrag = {
-        fx: Math.min(1, Math.max(0, (centerX - rect.left) / rect.width)),
-        fy: Math.min(1, Math.max(0, (rect.bottom - bottomY) / rect.height))
-      };
-      reposition(overlay);
-    });
-
-    const end = (event) => {
-      if (!drag || event.pointerId !== drag.id) {
-        return;
-      }
-      drag = null;
-      overlay.classList.remove(DRAGGING_CLASS);
-      try {
-        handle.releasePointerCapture(event.pointerId);
-      } catch (error) {
-        // ignore
-      }
-      saveDragPosition(overlay.__dualsubDrag);
-    };
-    handle.addEventListener('pointerup', end);
-    handle.addEventListener('pointercancel', end);
-
-    handle.addEventListener('dblclick', (event) => {
-      event.preventDefault();
-      event.stopPropagation();
-      overlay.__dualsubDrag = null;
-      saveDragPosition(null);
-      reposition(overlay);
-    });
-  }
-
   function createOverlay() {
     const overlay = document.createElement('div');
     overlay.className = LAYER_CLASS + ' ' + HIDDEN_CLASS;
@@ -488,39 +290,8 @@
     turkishLine.className = LINE_CLASS + ' ' + TR;
     turkishLine.setAttribute('aria-live', 'polite');
 
-    // Invisible hit area around the two lines. The layer itself stays
-    // click-through, but this box swallows every click that lands on the
-    // subtitle (between words, on the line padding) so it can no longer fall
-    // through to the player's seek bar underneath and jump the video.
-    const box = document.createElement('div');
-    box.className = BOX_CLASS;
-
-    // Small bar under the subtitle: press and drag it to move the subtitle
-    // anywhere on the video. Double-click puts it back in its default place.
-    const handle = document.createElement('div');
-    handle.className = HANDLE_CLASS;
-    handle.title = 'Altyazıyı taşımak için sürükle · çift tık: varsayılan yer';
-
-    box.appendChild(englishLine);
-    box.appendChild(turkishLine);
-    box.appendChild(handle);
-    overlay.appendChild(box);
-
-    for (const type of SWALLOWED_EVENTS) {
-      box.addEventListener(type, (event) => event.stopPropagation());
-    }
-    box.addEventListener('mousedown', (event) => {
-      // No text selection / focus change when clicking the empty part.
-      if (event.target === box || event.target === handle) {
-        event.preventDefault();
-      }
-    });
-
-    overlay.__dualsubBox = box;
-    overlay.__dualsubHandle = handle;
-    overlay.__dualsubDrag = null;
-    attachDrag(overlay, handle);
-    loadDragPosition(overlay);
+    overlay.appendChild(englishLine);
+    overlay.appendChild(turkishLine);
 
     overlay.__dualsubEnglishLine = englishLine;
     overlay.__dualsubTurkishLine = turkishLine;
@@ -614,15 +385,6 @@
 
     overlay.__dualsubOnWordClick = onWordClick || null;
     applyAppearance(overlay, settings);
-
-    // Picking Alt/Orta/Üst in the popup drops a dragged position, otherwise
-    // those buttons would seem to do nothing.
-    const preset = String((settings && settings.position) || 'bottom');
-    if (overlay.__dualsubPreset && overlay.__dualsubPreset !== preset && overlay.__dualsubDrag) {
-      overlay.__dualsubDrag = null;
-      saveDragPosition(null);
-    }
-    overlay.__dualsubPreset = preset;
 
     if (cueChanged) {
       // Rebuilding the line would destroy the span the panel is anchored to, so

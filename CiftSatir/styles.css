@@ -29,62 +29,6 @@
   display: none;
 }
 
-/* Invisible shield around the two lines: catches clicks that miss a word so
-   they never reach the player's seek bar or play/pause area underneath. */
-.dualsub-layer .dualsub-box {
-  pointer-events: auto;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 6px;
-  max-width: 100%;
-  padding: 8px 10px 2px;
-  box-sizing: border-box;
-  background: transparent;
-  cursor: default;
-}
-
-/* Drag handle: the small bar under the subtitle. */
-.dualsub-layer .dualsub-handle {
-  pointer-events: auto;
-  position: relative;
-  width: 44px;
-  height: 14px;
-  cursor: grab;
-  touch-action: none;
-  flex: none;
-}
-
-.dualsub-layer .dualsub-handle::before {
-  content: "";
-  position: absolute;
-  left: 6px;
-  right: 6px;
-  top: 5px;
-  height: 4px;
-  border-radius: 2px;
-  background: rgba(255, 255, 255, 0.35);
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.6);
-  transition: background-color 0.12s ease, left 0.12s ease, right 0.12s ease;
-}
-
-.dualsub-layer .dualsub-box:hover .dualsub-handle::before {
-  background: rgba(255, 255, 255, 0.6);
-}
-
-.dualsub-layer .dualsub-handle:hover::before,
-.dualsub-layer.is-dragging .dualsub-handle::before {
-  left: 2px;
-  right: 2px;
-  background: var(--dualsub-hover-strong, rgba(56, 189, 248, 0.9));
-}
-
-.dualsub-layer.is-dragging,
-.dualsub-layer.is-dragging * {
-  cursor: grabbing !important;
-  user-select: none;
-}
-
 .dualsub-line {
   display: inline-block;
   max-width: 100%;
